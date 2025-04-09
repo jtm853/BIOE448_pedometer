@@ -1,7 +1,7 @@
 #include <Wire.h> // Necessary for I2C communication
 #include <LiquidCrystal.h> // loaded library
 
-LiquidCrystal lcd(10, 8, 5, 4, 3, 2);
+LiquidCrystal lcd(7, 6, 5, 4, 3, 2);
 
 int accel = 0x53; // I2C address for this sensor (from data sheet)
 float x, y, z;
@@ -10,7 +10,12 @@ float XYZ;
 bool any_peak_detected = false;
 bool first_peak_detected = false;
 
+int upper_threshold = 90000;
+int lower_threshold = 67000;
+int step_count = 0;
+
 void setup() {
+  
   Serial.begin(9600);
   Wire.begin(); // Initialize serial communications
   Wire.beginTransmission(accel); // Start communicating with the device
@@ -19,13 +24,12 @@ void setup() {
   Wire.endTransmission();
 
   lcd.begin(16,2); // Initiate LCD in 16x2 configuration
-  lcd.print("test juice");
-  lcd.setCursor(0,1);
-  lcd.print("test 2");
+  lcd.print("Step count: ");
 
 }
 
 void loop() {
+
   Wire.beginTransmission(accel);
   Wire.write(0x32); // Prepare to get readings for sensor (address from data sheet)
   Wire.endTransmission(false);
@@ -37,6 +41,32 @@ void loop() {
   XYZ = sqrt(pow(x,2) + pow(y,2) + pow(z,2));
   Serial.println(XYZ);
 
+  if (XYZ > upper_threshold && any_peak_detected == false) {
+
+    any_peak_detected = true;
+
+    if (first_peak_detected == false) {
+
+      first_peak_detected = true;
+
+    } else {
+
+      first_peak_detected = false;
+      step_count++;
+      Serial.println(step_count);
+      lcd.setCursor(0,1);
+      lcd.print(step_count);
+
+    }
+
+  }
+
+  if (XYZ < lower_threshold) {
+
+    any_peak_detected = false;
+
+  }
+
   // Serial.print("x = "); // Print values
   // Serial.print(x);
   // lcd.print(x);
@@ -46,5 +76,6 @@ void loop() {
   // lcd.print(y);
   // Serial.print(", z = ");
   // Serial.println(z);
-  delay(200);
+
+  delay(100);
 }
