@@ -1,5 +1,13 @@
 #include <Wire.h> // Necessary for I2C communication
-#include <LiquidCrystal.h> // loaded library
+#include <LiquidCrystal.h> // loaded LCD library
+#include <ArduinoBLE.h> // loaded BLE protocol library
+
+// initiating Bluetooth services and characteristics
+
+BLEService newService("180A");
+BLEByteCharacteristic readChar("2A57", BLERead);
+BLEByteCharacteristic writeChar("2A58", BLEWrite);
+long previousMillis = 0;
 
 LiquidCrystal lcd(7, 6, 5, 4, 3, 2);
 
@@ -23,8 +31,40 @@ void setup() {
   Wire.write(8); // Get sample measurement
   Wire.endTransmission();
 
+  // setting up LCD:
+
   lcd.begin(16,2); // Initiate LCD in 16x2 configuration
   lcd.print("Step count: ");
+
+  // setting up Bluetooth:
+
+  while(!Serial);
+    if (!BLE.begin()) {
+      Serial.println("waiting for ArduinoBLE");
+      while(1);
+    }
+
+  BLE.setLocalName("Juicer Pedometer");
+  BLE.setAdvertisedService(newService);
+  newService.addCharacteristic(readChar);
+  newService.addCharacteristic(writeChar);
+  BLE.addService(newService);
+
+  readChar.writeValue(0);
+  writeChar.writeValue(0);
+
+  BLE.advertise();
+  Serial.println("Bluetooth device active");
+
+
+  if (central) {
+
+  Serial.print("Connected to central : ");
+  Serial.println(central.address()); // print the central's BT address
+  digitalWrite(LED_BUILTIN, HIGH); // turn on LED to indicate connection is good
+
+  BLEDevice central = BLE.central(); // wait for a BLE central (your iPhone)
+
 
 }
 
@@ -39,7 +79,7 @@ void loop() {
   y = (Wire.read() | Wire.read() << 8); // Parse z values
 
   XYZ = sqrt(pow(x,2) + pow(y,2) + pow(z,2));
-  Serial.println(XYZ);
+  // Serial.println(XYZ);
 
   if (XYZ > upper_threshold && any_peak_detected == false) {
 
@@ -56,9 +96,7 @@ void loop() {
       Serial.println(step_count);
       lcd.setCursor(0,1);
       lcd.print(step_count);
-
     }
-
   }
 
   if (XYZ < lower_threshold) {
@@ -67,15 +105,11 @@ void loop() {
 
   }
 
-  // Serial.print("x = "); // Print values
-  // Serial.print(x);
-  // lcd.print(x);
-  // Serial.print(", y = ");
-  // Serial.print(y);
-  // lcd.setCursor(0,1);
-  // lcd.print(y);
-  // Serial.print(", z = ");
-  // Serial.println(z);
+  if (central.connected()) { // if central is connected
+      readChar.writeValue(step_count);
+  }
 
-  delay(100);
+  delay(500);
+}
+
 }
