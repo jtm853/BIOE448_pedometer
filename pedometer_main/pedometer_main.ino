@@ -1,4 +1,4 @@
-// BIOE 448 Final Project: Juicer Pedometer
+// BIOE 448 Final Project: Goonometer
 // Created by Jonathan Makhoul and Alice Tian
 // Description: a compact proof of concept device that tracks user step count and uses this to estimate 
 // parameters like calories burned and distance traveled
@@ -123,8 +123,8 @@ void loop() {
   delay(100);
 
   lcd.setCursor(12,0);
-  lcd.print(step_count);
-  read_StepCount.writeValue(step_count);
+  lcd.print((step_count / 2));
+  read_StepCount.writeValue((step_count / 2));
   read_CalBurned.writeValue(caloriesBurned);
   read_Distance.writeValue(distanceTraveled);
   lcd.setCursor(0,1);
