@@ -1,4 +1,4 @@
-// BIOE 448 Final Project: Goonometer
+// BIOE 448 Final Project: Juicer Pedometer
 // Created by Jonathan Makhoul and Alice Tian
 // Description: a compact proof of concept device that tracks user step count and uses this to estimate 
 // parameters like calories burned and distance traveled
