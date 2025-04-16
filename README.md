@@ -59,7 +59,7 @@ Local advertised name: **"Juicer Pedometer"**
 
 - `pedometer_main.ino` — Full Arduino sketch containing step detection, Bluetooth setup, LCD display logic, and user interface
 
-## 💬 Acknowledgements
+## Acknowledgements
 
 This project was completed as part of the **BIOE 448: Senior Design** course at Rice University.
 
