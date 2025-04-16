@@ -16,6 +16,8 @@ BLEByteCharacteristic read_CalBurned("2A58", BLERead);
 BLEByteCharacteristic read_Distance("2A59", BLERead);
 long previousMillis = 0;
 
+// initiate LCD pins
+
 LiquidCrystal lcd(7, 6, 5, 4, 3, 2);
 
 // initialize variables
@@ -30,7 +32,8 @@ float caloriesBurned = 0;
 float distanceTraveled = 0;
 bool central_connected = false;
 
-// initialize button for scrolling LCD
+// initialize button variables for scrolling LCD
+
 const int buttonPin = 1;
 int buttonState = 0;
 
@@ -101,6 +104,8 @@ void loop() {
   z = (int16_t)(Wire.read() | Wire.read() << 8); // Parse z values
 
   XYZ = sqrt(pow(x,2) + pow(y,2) + pow(z,2));
+
+  // Serial.println(XYZ);
 
   if (XYZ > threshold && any_peak_detected == false) {
 
